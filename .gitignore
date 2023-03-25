@@ -7,3 +7,6 @@ npm-debug.log
 /node_modules/
 /bundleOutput/
 __tests__
+
+
+radata/
