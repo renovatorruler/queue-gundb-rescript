@@ -1,0 +1,17 @@
+{
+  "name": "queue_gundb_rescript",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "res:build": "rescript",
+    "res:dev": "rescript build -w"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "gun": "^0.2020.1239",
+    "rescript": "^10.1.3"
+  }
+}
