@@ -4,6 +4,7 @@
   "description": "",
   "main": "index.js",
   "scripts": {
+    "start": "node src/App.mjs",
     "res:build": "rescript",
     "res:dev": "rescript build -w"
   },
