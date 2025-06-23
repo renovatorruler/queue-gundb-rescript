@@ -11,9 +11,11 @@ module Types = {
   type status = [#waiting]
 
   let null = Js.Nullable.null
-}
+} 
 open Types
 open Constants
+
+@val external randomUUID: unit => string = "crypto.randomUUID"
 
 module Sea = {
   type sea
@@ -117,25 +119,41 @@ let unsetEverything = async storeId => {
   await gun->Gun.unset(storeRef)
 }
 
+let ensureStoreExists = async storeId => {
+  let storeRef = gun->Gun.get(storesLabel)->Gun.get(storeId)
+  let store = await storeRef->Gun.once()
+  if (Js.Undefined.testAny(store)) {
+    await storeRef->Gun.put({"createdAt": Js.Date.make()->Js.Date.toISOString})
+  }
+}
+
+let parseStoreId = () => {
+  let location = Webapi.Dom.window->Webapi.Dom.Window.location
+  let path = location->Webapi.Dom.Location.pathname
+  let parts = path->Js.String2.split("/")->Js.Array2.filter(part => part->Js.String2.length > 0)
+  switch Belt.Array.get(parts, 0) {
+  | Some(id) => id
+  | None => {
+      let id = randomUUID()
+      let history = Webapi.Dom.window->Webapi.Dom.Window.history
+      history->Webapi.Dom.History.replaceState(Obj.magic(Js.Obj.empty()), "", "/" ++ id)
+      id
+    }
+  }
+}
+
 @react.component
 let make = () => {
-  let (storeName, setStoreName) = React.useState(() => "")
-  let (storeEmail, setStoreEmail) = React.useState(() => "")
-  let (storeId, setStoreId) = React.useState(() => "")
+  let storeId = React.useMemo0(() => parseStoreId())
+  React.useEffect1(() => {
+    ensureStoreExists(storeId) |> ignore
+    None
+  }, [storeId])
+
   let (customerName, setCustomerName) = React.useState(() => "")
   let (queuePositionId, setQueuePositionId) = React.useState(() => "")
 
-  let register = _ =>
-    Js.Promise.then_(
-      id => {
-        setStoreId(_ => id)
-        Js.Promise.resolve()
-      },
-      registerStore(storeName, storeEmail),
-    )
-    |> ignore
-
-  let enter = _ =>
+  let takeTicket = _ =>
     Js.Promise.then_(
       id => {
         setQueuePositionId(_ => id)
@@ -145,38 +163,21 @@ let make = () => {
     )
     |> ignore
 
-  <div>
-    <h1>{React.string("Queue App")}</h1>
-    <div>
-      <input
-        value=storeName
-        onChange={ev =>
-          setStoreName(_ => ReactEvent.Form.target(ev)["value"])
-        }
-        placeholder="Store Name"
-      />
-      <input
-        value=storeEmail
-        onChange={ev =>
-          setStoreEmail(_ => ReactEvent.Form.target(ev)["value"])
-        }
-        placeholder="Store Email"
-      />
-      <button onClick={_ => register()}>{React.string("Register Store")}</button>
-    </div>
-    {switch storeId {
-    | "" => React.null
-    | id => <p>{React.string("Store ID: " ++ id)}</p>
-    }}
-    <div>
-      <input
-        value=customerName
-        onChange={ev =>
-          setCustomerName(_ => ReactEvent.Form.target(ev)["value"])
-        }
-        placeholder="Your Name"
-      />
-      <button onClick={_ => enter()}>{React.string("Enter Queue")}</button>
+  <div className="container">
+    <h1>{React.string("Take a Number")}</h1>
+    <input
+      value=customerName
+      onChange={ev => setCustomerName(_ => ReactEvent.Form.target(ev)["value"])}
+      placeholder="Your Name"
+    />
+    <div id="dispenser">
+      <div
+        id="ticket"
+        draggable=true
+        onDragEnd={_ => takeTicket()}
+      >
+        {React.string("Pull Ticket")}
+      </div>
     </div>
     {switch queuePositionId {
     | "" => React.null
