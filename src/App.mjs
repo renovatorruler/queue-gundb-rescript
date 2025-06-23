@@ -54,7 +54,8 @@ async function enterQueue(customerName, storeId) {
   var storeRef = gun.get("stores").get(storeId);
   var store = await storeRef.once();
   console.log("store", store);
-  var queue = await storeRef.get("queue").once();
+  var queueRef = storeRef.get("queue");
+  var queue = await queueRef.once();
   console.log("queue", queue);
   var queuePosition_timestamp = new Date().toISOString();
   var queuePosition = {
@@ -64,8 +65,8 @@ async function enterQueue(customerName, storeId) {
     timestamp: queuePosition_timestamp
   };
   console.log("queuePosition", queuePosition);
-  await queue.set(queuePosition);
-  var queueArr = queue.once();
+  await queueRef.set(queuePosition);
+  var queueArr = queueRef.once();
   console.log("queueArr", queueArr);
   var queuePositionId = await asyncWork(sea, "" + customerName + ":" + queuePosition_timestamp + "");
   var queuePositionRef = gun.get("queuePositions").get(queuePositionId, (function (x) {
