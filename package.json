@@ -4,10 +4,10 @@
   "description": "",
   "main": "index.js",
   "scripts": {
-    "start": "serve .",
+    "start": "serve dist",
     "res:build": "rescript",
     "res:dev": "rescript build -w",
-    "build": "npm run res:build && esbuild src/Index.mjs --bundle --format=esm --outfile=app.js",
+    "build": "npm run res:build && mkdir -p dist && esbuild src/Index.mjs --bundle --format=esm --outfile=dist/app.js && cp index.html dist/index.html",
     "vercel-build": "npm run build"
   },
   "keywords": [],
@@ -26,4 +26,3 @@
     "serve": "^14.2.4"
   }
 }
-

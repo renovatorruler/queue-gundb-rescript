@@ -10,5 +10,6 @@ __tests__
 # Ignore generated JS files
 /src/*.mjs
 /lib/
-app.js
+/dist/
 
+app.js
