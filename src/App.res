@@ -64,7 +64,7 @@ type store = {queue: queue}
 let gun = Gun.gun({peers: gunUrl})
 let sea = Sea.sea
 
-let registerStore = async (name: name, email: email) => {
+let registerStoreAsync = async (name: name, email: email) => {
   let storeId = await sea->Sea.asyncWork(email)
 
   // Create a new store in GunDB
@@ -117,8 +117,14 @@ let unsetEverything = async storeId => {
   await gun->Gun.unset(storeRef)
 }
 
-@react.component
-let make = () => {
+let ensureStoreExists = async storeId => {
+  let storeRef = gun->Gun.get(storesLabel)->Gun.get(storeId)
+  await storeRef->Gun.put({"id": storeId})
+}
+
+module RegisterStore = {
+  @react.component
+  let make = () => {
   let (storeName, setStoreName) = React.useState(() => "")
   let (storeEmail, setStoreEmail) = React.useState(() => "")
   let (storeId, setStoreId) = React.useState(() => "")
@@ -131,7 +137,7 @@ let make = () => {
         setStoreId(_ => id)
         Js.Promise.resolve()
       },
-      registerStore(storeName, storeEmail),
+      registerStoreAsync(storeName, storeEmail),
     )
     |> ignore
 
@@ -183,4 +189,63 @@ let make = () => {
     | id => <p>{React.string("Queue Position ID: " ++ id)}</p>
     }}
   </div>
+  }
+}
+
+module CustomerPage = {
+  @react.component
+  let make = (~storeId: string) => {
+    let (ticketId, setTicketId) = React.useState(() => "")
+    React.useEffect0(() => {
+      ensureStoreExists(storeId) |> ignore
+      None
+    })
+
+    let take = _ =>
+      Js.Promise.then_(
+        id => {
+          setTicketId(_ => id)
+          Js.Promise.resolve()
+        },
+        enterQueue("Guest", storeId),
+      )
+      |> ignore
+
+    <div>
+      <h1>{React.string("Take a number")}</h1>
+      <div className="dispenser">
+        <div
+          className="ticket"
+          draggable=true
+          onDragStart={_ => take()}
+          onClick={_ => take()}
+        >
+          {React.string("Pull Ticket")}
+        </div>
+      </div>
+      {switch ticketId {
+      | "" => React.null
+      | id => <p>{React.string("Ticket ID: " ++ id)}</p>
+      }}
+    </div>
+  }
+}
+
+let getStoreIdFromPath = () => {
+  let location = Webapi.Dom.window->Webapi.Dom.Window.location
+  let pathname = location->Webapi.Dom.Location.pathname
+  let trimmed = Js.String2.sliceToEnd(pathname, ~from=1)
+  if trimmed == "" {
+    None
+  } else {
+    Some(trimmed)
+  }
+}
+
+@react.component
+let make = () => {
+  switch getStoreIdFromPath() {
+  | None => <RegisterStore />
+  | Some(id) => <CustomerPage storeId=id />
+  }
 }
