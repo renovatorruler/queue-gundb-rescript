@@ -3,6 +3,35 @@
   <head>
     <meta charset="UTF-8" />
     <title>Queue React App</title>
+    <style>
+      body {
+        font-family: sans-serif;
+        text-align: center;
+      }
+      .dispenser {
+        width: 200px;
+        height: 250px;
+        margin: 40px auto;
+        padding: 20px;
+        background: #e0e0e0;
+        border-radius: 10px;
+        box-shadow: inset -4px -4px 8px rgba(0,0,0,0.2),
+                    inset 4px 4px 8px rgba(255,255,255,0.8),
+                    0 4px 8px rgba(0,0,0,0.3);
+        position: relative;
+      }
+      .ticket {
+        width: 120px;
+        height: 40px;
+        background: #fff;
+        border: 1px dashed #444;
+        border-radius: 4px;
+        margin: 0 auto;
+        line-height: 40px;
+        cursor: grab;
+        user-select: none;
+      }
+    </style>
   </head>
   <body>
     <div id="root"></div>
