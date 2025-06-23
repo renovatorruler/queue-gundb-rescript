@@ -78,7 +78,8 @@ let enterQueue = async (customerName: name, storeId: storeId) => {
   let store = await storeRef->Gun.once()
   Js.log2("store", store)
 
-  let queue = await storeRef->Gun.get("queue")->Gun.once()
+  let queueRef = storeRef->Gun.get("queue")
+  let queue = await queueRef->Gun.once()
   Js.log2("queue", queue)
 
   // Create a new queue position object for the user
@@ -91,8 +92,8 @@ let enterQueue = async (customerName: name, storeId: storeId) => {
   Js.log2("queuePosition", queuePosition)
 
   // Add the queue position object to the store's queue array
-  await queue->Gun.set(queuePosition)
-  let queueArr = queue->Gun.once()
+  await queueRef->Gun.set(queuePosition)
+  let queueArr = queueRef->Gun.once()
   Js.log2("queueArr", queueArr)
 
   // Generate a unique queue position ID using the user's name and timestamp
