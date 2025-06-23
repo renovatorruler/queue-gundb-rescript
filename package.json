@@ -7,7 +7,7 @@
     "start": "serve dist",
     "res:build": "rescript",
     "res:dev": "rescript build -w",
-    "build": "npm run res:build && mkdir -p dist && esbuild src/Index.mjs --bundle --format=esm --outfile=dist/app.js && cp index.html dist/index.html",
+    "build": "npm run res:build && mkdir -p dist && esbuild src/Index.mjs --bundle --format=esm --outfile=dist/app.js && cp index.html dist/index.html && cp style.css dist/style.css",
     "vercel-build": "npm run build"
   },
   "keywords": [],
