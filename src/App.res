@@ -117,14 +117,70 @@ let unsetEverything = async storeId => {
   await gun->Gun.unset(storeRef)
 }
 
-let main = async () => {
-  //   let _ = await unsetEverything("McVUPBc00lxyBvX9WRUl0Clb7G/oT/gvlGo0/pcKHmY=")
+@react.component
+let make = () => {
+  let (storeName, setStoreName) = React.useState(() => "")
+  let (storeEmail, setStoreEmail) = React.useState(() => "")
+  let (storeId, setStoreId) = React.useState(() => "")
+  let (customerName, setCustomerName) = React.useState(() => "")
+  let (queuePositionId, setQueuePositionId) = React.useState(() => "")
 
-  let storeId = await registerStore("My Store", "example@example.com")
-  let _ = gun->Gun.get("stores")->Gun.get(storeId)->Gun.on(x => Js.log2("storeRef", x))
-  Js.log2("Store ID: ", storeId)
+  let register = _ =>
+    Js.Promise.then_(
+      id => {
+        setStoreId(_ => id)
+        Js.Promise.resolve()
+      },
+      registerStore(storeName, storeEmail),
+    )
+    |> ignore
 
-  let queuePositionId = await enterQueue("John", storeId)
-  Js.log2("User entered queue with position ID:", queuePositionId)
+  let enter = _ =>
+    Js.Promise.then_(
+      id => {
+        setQueuePositionId(_ => id)
+        Js.Promise.resolve()
+      },
+      enterQueue(customerName, storeId),
+    )
+    |> ignore
+
+  <div>
+    <h1>{React.string("Queue App")}</h1>
+    <div>
+      <input
+        value=storeName
+        onChange={ev =>
+          setStoreName(_ => ReactEvent.Form.target(ev)["value"])
+        }
+        placeholder="Store Name"
+      />
+      <input
+        value=storeEmail
+        onChange={ev =>
+          setStoreEmail(_ => ReactEvent.Form.target(ev)["value"])
+        }
+        placeholder="Store Email"
+      />
+      <button onClick={_ => register()}>{React.string("Register Store")}</button>
+    </div>
+    {switch storeId {
+    | "" => React.null
+    | id => <p>{React.string("Store ID: " ++ id)}</p>
+    }}
+    <div>
+      <input
+        value=customerName
+        onChange={ev =>
+          setCustomerName(_ => ReactEvent.Form.target(ev)["value"])
+        }
+        placeholder="Your Name"
+      />
+      <button onClick={_ => enter()}>{React.string("Enter Queue")}</button>
+    </div>
+    {switch queuePositionId {
+    | "" => React.null
+    | id => <p>{React.string("Queue Position ID: " ++ id)}</p>
+    }}
+  </div>
 }
-let _ = main()

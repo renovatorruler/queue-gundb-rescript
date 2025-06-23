@@ -13,5 +13,10 @@
         }
     ],
     "suffix": ".mjs",
-    "bs-dependencies": []
+    "bs-dependencies": [
+        "@rescript/react",
+        "rescript-webapi"
+    ],
+    "jsx": {"version": 4}
 }
+
